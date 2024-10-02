@@ -1,3 +1,4 @@
 # Robotics Project Team 1 Repository
-Welcome to our robotics project team repository, here you will find all codes, files, images and descriptions of our project throughout the semester.
-Our chosen application is place and sort robotic arm, where a user presses on a push button, that is pre-programmed with a pre-determined set of coordinates that is translated to a trajectory, an improved approach could involve using sensors, such as colour sensors to sort the containers based on colour, however, that is yet to be confirmed between the team members.
+Welcome to our robotics project repository. This is where we document all codes, files, images, and progress related to our project over the semester. Our focus is on designing and developing a place-and-sort robotic arm system. The current setup involves a user pressing one of the integrated push buttons, where each push-button is pre-programmed with a specific set of coordinates. These coordinates define a trajectory for the robotic arm to place a container at its designated location.
+
+
