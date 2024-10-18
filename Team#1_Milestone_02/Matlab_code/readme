@@ -1,1 +1,2 @@
-
+We assumed that there is no shifting when we computed the DH-table , there might be some small variations between matlab codes and the simscape simulation.
+We took the same reference for matlab codes and simscape. However, for coppeliasim we had a different orientation between the axes.
