@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="Robotic Arm EE.SLDASM">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="0.0409039885900824 -0.0933531694808331 0.0583530922483114"
+        rpy="0 0 0" />
+      <mass
+        value="0.746478411102411" />
+      <inertia
+        ixx="0.00098992255460333"
+        ixy="-2.18404379038927E-07"
+        ixz="3.06886142716888E-05"
+        iyy="0.00107875491163471"
+        iyz="1.88017722078148E-06"
+        izz="0.00161607780871753" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Robotic Arm EE.SLDASM/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.650980392156863 0.619607843137255 0.588235294117647 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Robotic Arm EE.SLDASM/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="L1">
+    <inertial>
+      <origin
+        xyz="-0.00643460210920348 0.0172893971363359 -0.00137197240631328"
+        rpy="0 0 0" />
+      <mass
+        value="0.0680382266926048" />
+      <inertia
+        ixx="5.81345741791129E-05"
+        ixy="5.17736628772809E-06"
+        ixz="-6.4179943434721E-07"
+        iyy="5.46761883814408E-05"
+        iyz="6.24328416989481E-06"
+        izz="4.50193867530342E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Robotic Arm EE.SLDASM/meshes/L1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Robotic Arm EE.SLDASM/meshes/L1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="q1"
+    type="continuous">
+    <origin
+      xyz="0.0407792536350643 -0.0928795656917679 0.093107574107867"
+      rpy="1.5707963267949 0 1.89530804628189" />
+    <parent
+      link="base_link" />
+    <child
+      link="L1" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="L2">
+    <inertial>
+      <origin
+        xyz="-0.000129983613254815 0.0585890328278611 0.00596911953449969"
+        rpy="0 0 0" />
+      <mass
+        value="0.0643953290011814" />
+      <inertia
+        ixx="0.000107036772950442"
+        ixy="-1.50060884008767E-09"
+        ixz="2.41543950155019E-10"
+        iyy="9.10992888008589E-06"
+        iyz="2.39476554310879E-07"
+        izz="0.000111843337440319" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Robotic Arm EE.SLDASM/meshes/L2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0 0.254901960784314 0.92156862745098 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Robotic Arm EE.SLDASM/meshes/L2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="q2"
+    type="continuous">
+    <origin
+      xyz="0 0.0404532568712299 -0.0137417296066923"
+      rpy="0.53479703692865 1.57079631189374 0.53479703692865" />
+    <parent
+      link="L1" />
+    <child
+      link="L2" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="L3">
+    <inertial>
+      <origin
+        xyz="0.018318535297824 0.0865217666206989 0.00839309440199899"
+        rpy="0 0 0" />
+      <mass
+        value="0.108814972626043" />
+      <inertia
+        ixx="6.36328635646869E-05"
+        ixy="-3.37601181829204E-06"
+        ixz="-1.39824429978582E-06"
+        iyy="2.40003779869392E-05"
+        iyz="-6.94371032008804E-08"
+        izz="7.49803434116986E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Robotic Arm EE.SLDASM/meshes/L3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Robotic Arm EE.SLDASM/meshes/L3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="q3"
+    type="continuous">
+    <origin
+      xyz="0 0.12 0"
+      rpy="3.14159265358979 0 3.14159265358979" />
+    <parent
+      link="L2" />
+    <child
+      link="L3" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+</robot>
