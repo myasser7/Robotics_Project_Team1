@@ -1,2 +1,27 @@
-We assumed that there is no shifting when we computed the DH-table , there might be some small variations between matlab codes and the simscape simulation.
-We took the same reference for matlab codes and simscape. However, for coppeliasim we had a different orientation between the axes.
+# Addressing Discrepancies in MATLAB, Simulink, and Coppeliasim
+
+## Assumptions and Limitations
+
+- **DH-Table Calculations:** It was assumed that there were no significant shifts or misalignments between the physical robot and its virtual representation when calculating the Denavit-Hartenberg (DH) table. This assumption might lead to minor variations between the MATLAB code, Simulink simulation, and Coppeliasim implementation.
+
+- **Reference Frame Consistency:** While the same reference frame was used for the MATLAB code and Simulink simulation, there was a difference in the orientation of the axes between these environments and Coppeliasim. This inconsistency could contribute to discrepancies in the results.
+
+## Recommendations
+
+- **Double-Check DH-Table Accuracy:** Carefully verify the accuracy of the DH-table parameters, ensuring they accurately represent the physical robot's configuration. Consider using a physical measurement tool or calibration techniques to refine the DH-table values.
+
+- **Uniform Reference Frames:** Establish a consistent reference frame across all environments (MATLAB, Simulink, and Coppeliasim) to minimize discrepancies in coordinate transformations and motion planning.
+
+- **Cross-Validation:** Conduct thorough cross-validation between the different environments to identify and address any inconsistencies or errors in the models or simulations.
+
+- **Error Analysis:** Perform a detailed error analysis to quantify the magnitude of the discrepancies and identify their potential sources. This information can be used to refine the models and improve the accuracy of the simulations.
+
+## GitHub Repository Structure
+
+- **matlab/:** Contains MATLAB scripts for robot kinematics, dynamics, and control.
+
+- **simulink/:** Houses Simulink models for simulating robot behavior.
+
+- **coppeliasim/:** Includes Coppeliasim scene files and scripts for virtual robot interaction.
+
+- **documentation/:** Provides detailed documentation, including user manuals, tutorials, and technical reports.
