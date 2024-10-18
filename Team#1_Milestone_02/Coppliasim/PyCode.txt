@@ -1,0 +1,40 @@
+def sysCall_init():
+    sim = require('sim')
+    self.Obj1 = sim.getObject("../q1")
+    self.Obj2 = sim.getObject("../q2")
+    self.Obj3 = sim.getObject("../q3")
+    self.Pos1 = 0 *(3.14/180)
+    self.Pos2 = 0 *(3.14/180)
+    self.Pos3 = 90 *(3.14/180)
+    #sim.setJointPosition(Obj,Pos)
+    self.req_duration = 5 #seconds
+
+def sysCall_actuation():
+    curr_t = sim.getSimulationTime()
+    if curr_t < self.req_duration:
+        new_Pos1 = (curr_t/self.req_duration)*self.Pos1
+        new_Pos2 = (curr_t/self.req_duration)*self.Pos2
+        new_Pos3 = (curr_t/self.req_duration)*self.Pos3
+            
+        sim.setJointTargetPosition(self.Obj1,new_Pos1)
+        sim.setJointTargetPosition(self.Obj2,new_Pos2)
+        sim.setJointTargetPosition(self.Obj3,new_Pos3)
+    else:
+        sim.setJointTargetPosition(self.Obj1,self.Pos1)
+        sim.setJointTargetPosition(self.Obj2,self.Pos2)
+        sim.setJointTargetPosition(self.Obj3,self.Pos3)
+
+    pass
+
+def sysCall_sensing():
+    # put your sensing code here
+    pass
+
+def sysCall_cleanup():
+    EE_Handle = sim.getObject("/EEFrame")
+    base_handle = sim.getObject("../q1Frame")
+    EE_Pos = sim.getObjectPosition(EE_Handle,base_handle)
+    print(EE_Pos)
+    pass
+
+# See the user manual or the available code snippets for additional callback functions and details
