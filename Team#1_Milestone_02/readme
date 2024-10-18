@@ -1,1 +1,4 @@
+Robotic_Arm3.slx is the simulink model for simscape, where the frames of the joints were assigned to match the frames drawn on the DH-Convention table, the default position of the robot is shown in the simscape_model.png screenshot, and the block diagram is shown in a different screenshot as well.
+The video attached, shows the frames of all joints and the end effector in my default position, however, the robot's default position is different in coppeliasim and in the DH-Convention, so different angles will be used (usually a difference of 45 degrees).
 
+The positions in X,Y,Z are mostly within a repspectable tolerance, due to inaucraccies in setting the exact posiiton of the end effector frame, and mismatch in initial base orientation
