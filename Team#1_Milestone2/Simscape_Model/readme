@@ -1,3 +1,0 @@
-In this folder, you will find the simulink model of the robotic arm, with screenshots of the arm in the zero position, and in different orientations to compare the end effector position with the values from the DH-Convention table and Coppeliasim, some tolerance has been found due to changes in the exact position of the end effector frame, especially on the simscape model due to the difficulty in perfectly aligning it in the exact position of interest.
-
-
