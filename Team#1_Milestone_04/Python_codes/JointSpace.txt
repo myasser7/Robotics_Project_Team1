@@ -1,0 +1,244 @@
+def sysCall_init():
+    sim = require('sim')
+    # Joint handles
+    self.Obj1 = sim.getObject("../q1")
+    self.Obj2 = sim.getObject("../q2")
+    self.Obj3 = sim.getObject("../q3")
+
+    # Duration for motion
+    self.req_duration = 10  # Duration in seconds
+    self.dt = 0.1  # Time step
+    
+    # Initial and final positions
+    self.x0, self.y0, self.z0 = 330, 0, 40.45  # Initial end-effector position
+    self.xf, self.yf, self.zf = 93.63, 78.656, 309.651  # Final end-effector position
+    
+    # Initial guesses for joint angles
+    q1_guess, q2_guess, q3_guess = 10, 10, 10
+    self.q1_0, self.q2_0, self.q3_0 = inverse_position_kinematics(self.x0, self.y0, self.z0, q1_guess, q2_guess, q3_guess)
+    self.q1_f, self.q2_f, self.q3_f = inverse_position_kinematics(self.xf, self.yf, self.zf, q1_guess, q2_guess, q3_guess)
+    
+    # Precompute polynomial coefficients
+    self.coeffs_q1 = solve_5th_order_polynomial(self.q1_0, self.q1_f, 0, 0, 0, 0, self.req_duration)
+    self.coeffs_q2 = solve_5th_order_polynomial(self.q2_0, self.q2_f, 0, 0, 0, 0, self.req_duration)
+    self.coeffs_q3 = solve_5th_order_polynomial(self.q3_0, self.q3_f, 0, 0, 0, 0, self.req_duration)
+    print(f"Coefficients for q1: {self.coeffs_q1}")
+    print(f"Coefficients for q2: {self.coeffs_q2}")
+    print(f"Coefficients for q3: {self.coeffs_q3}")
+
+    # Initialize time index
+    self.curr_time = 0.0
+
+
+def sysCall_actuation():
+    if self.curr_time <= self.req_duration:
+        q1, _, _ = evaluate_trajectory_5th_order(self.coeffs_q1, self.curr_time)
+        q2, _, _ = evaluate_trajectory_5th_order(self.coeffs_q2, self.curr_time)
+        q3, _, _ = evaluate_trajectory_5th_order(self.coeffs_q3, self.curr_time)
+        
+        print(f"Time: {self.curr_time}, q1: {q1}, q2: {q2}, q3: {q3}")  # Debugging
+        
+        sim.setJointTargetPosition(self.Obj1, np.deg2rad(q1))
+        sim.setJointTargetPosition(self.Obj2, np.deg2rad(q2))
+        sim.setJointTargetPosition(self.Obj3, np.deg2rad(q3))
+        
+        self.curr_time += self.dt
+    else:
+        sim.setJointTargetPosition(self.Obj1, np.deg2rad(self.q1_f))
+        sim.setJointTargetPosition(self.Obj2, np.deg2rad(self.q2_f))
+        sim.setJointTargetPosition(self.Obj3, np.deg2rad(self.q3_f))
+
+def sysCall_sensing():
+    # put your sensing code here
+    pass
+
+def sysCall_cleanup():
+    EE_Handle = sim.getObject("/EERef")
+    base_handle = sim.getObject("../q1Ref")
+    EE_Pos = sim.getObjectPosition(EE_Handle,base_handle)
+    print(EE_Pos)
+    q1, q2, q3 = inverse_position_kinematics(EE_Pos[0], EE_Pos[1], EE_Pos[2], 10, 10, 10)
+    print(f"Joint angles from IK at final position: q1 = {q1}, q2 = {q2}, q3 = {q3}")
+    pass
+import sympy as sp
+import numpy as np
+
+# Transformation Matrix Function (DH parameters)
+def transformation_func(theta, d, a, alpha):
+    """Compute the transformation matrix for given DH parameters"""
+    T = sp.Matrix([[sp.cos(theta), -sp.sin(theta)*sp.cos(alpha), sp.sin(theta)*sp.sin(alpha), a*sp.cos(theta)],
+                   [sp.sin(theta), sp.cos(theta)*sp.cos(alpha), -sp.cos(theta)*sp.sin(alpha), a*sp.sin(theta)],
+                   [0, sp.sin(alpha), sp.cos(alpha), d],
+                   [0, 0, 0, 1]])
+    return T
+
+# Forward Kinematics Function
+def forward_kinematics_func_Eq():
+    """Computes the forward kinematics of the robotic arm"""
+    # Define symbolic joint angles and link lengths
+    theta1, theta2, theta3 = sp.symbols('theta1 theta2 theta3')
+    l1 = 40.45  # Length of link 1
+    l2 = 120    # Length of link 2
+    l3 = 210     # Length of link 3
+    
+    # Define transformation matrices for each joint using DH parameters
+    T1 = transformation_func(theta1, l1, 0, sp.pi/2)  # First link
+    T2 = transformation_func(theta2, 0, l2, 0)        # Second link
+    T3 = transformation_func(theta3, 0, l3, 0)        # Third link
+    
+    # Compute the total transformation matrix from base to end-effector
+    T_total = T1 * T2 * T3
+    
+    # Extract the position of the end-effector
+    X = T_total[:3, 3]  # [X; Y; Z] position
+    return X
+
+# Inverse Kinematics Function (using Newton-Raphson)
+def inverse_position_kinematics(Xe, Ye, Ze, Xi, Yi, Zi):
+    """Computes the inverse kinematics of the robotic arm using Newton-Raphson method"""
+    # Define symbolic joint angles
+    theta1, theta2, theta3 = sp.symbols('theta1 theta2 theta3')
+    
+    # Parameters for the Newton-Raphson method
+    max_iterations = 500      # Maximum number of iterations
+    tolerance = 1e-6          # Convergence tolerance for error
+    
+    # Initial guess for joint angles (in degrees)
+    initial_guess = np.array([Xi, Yi, Zi])  # Modify if needed
+    current_guess = initial_guess
+    
+    # Define forward kinematics symbolically
+    X_symbolic = forward_kinematics_func_Eq()
+    
+    # Desired end-effector positions
+    f1 = X_symbolic[0] - Xe
+    f2 = X_symbolic[1] - Ye
+    f3 = X_symbolic[2] - Ze
+    f_vector = sp.Matrix([f1, f2, f3])  # Error function
+    
+    # Jacobian matrix with respect to joint angles
+    J = f_vector.jacobian([theta1, theta2, theta3])  # Correct way to compute Jacobian
+    
+    # Newton-Raphson Iteration
+    for i in range(max_iterations):
+        # Current joint angle values in radians
+        theta1_val = np.deg2rad(current_guess[0])
+        theta2_val = np.deg2rad(current_guess[1])
+        theta3_val = np.deg2rad(current_guess[2])
+        
+        # Substitute current joint values into error function and Jacobian
+        f_val = np.array([float(f.subs({theta1: theta1_val, theta2: theta2_val, theta3: theta3_val})) for f in f_vector], dtype=np.float64)
+        J_val = np.array(J.subs({theta1: theta1_val, theta2: theta2_val, theta3: theta3_val})).astype(np.float64)
+        
+        # Update joint angles using Newton-Raphson method
+        if np.linalg.matrix_rank(J_val) < 3:
+            raise ValueError('Jacobian is singular; inverse kinematics cannot be solved.')
+        
+        delta_q = -np.linalg.inv(J_val).dot(f_val)
+        new_guess = current_guess + np.rad2deg(delta_q)  # Update guess in degrees
+        
+        # Ensure joint angles remain between 0? and 360? using mod
+        new_guess = np.mod(new_guess, 360)
+        
+        # Compute the error and check for convergence
+        error = np.linalg.norm(f_val)
+        if error < tolerance:
+            #print((i + 1))
+            break
+        
+        # Update the current guess
+        current_guess = new_guess
+    
+    # Check if the solution converged
+    if i == max_iterations - 1:
+        print('Warning: Maximum iterations reached without convergence.')
+    
+    # Normalize joint angles
+    q1 = normalize_angle(current_guess[0])
+    q2 = normalize_angle(current_guess[1])
+    q3 = normalize_angle(current_guess[2])
+    
+    return q1, q2, q3
+
+# Normalize angle to the range [-180?, 180?]
+def normalize_angle(q):
+    q_normalized = np.mod(q, 360)  # Bring within 0? to 360?
+    if q_normalized > 180:
+        q_normalized -= 360  # Adjust to -180? to 180?
+    return q_normalized
+
+# Example usage:
+    Xe, Ye, Ze = 93.63, 78.565, 309.651  # Desired end-effector position (in some units)
+    Xi, Yi, Zi = 10, 10, 10    # Initial guess (in some units)
+
+    q1, q2, q3 = inverse_position_kinematics(Xe, Ye, Ze, Xi, Yi, Zi)
+    print(f"Calculated joint angles: q1 = {q1}?, q2 = {q2}?, q3 = {q3}?")
+# See the user manual or the available code snippets for additional callback functions and details
+
+
+import numpy as np
+from scipy.linalg import solve
+
+# Time parameters
+T = 10  # Duration in seconds
+dt = 0.1  # Time step
+t = np.arange(0, T+dt, dt)  # Time vector
+
+# Initial and final positions for end-effector
+x0, y0, z0 = 330, 0, 40.45  # Initial position
+xf, yf, zf = 93.63, 78.565, 309.651  # Final position
+
+q1_guess = 10  # Initial guess for q1
+q2_guess = 10  # Initial guess for q2
+q3_guess = 10  # Initial guess for q3
+
+q1_0, q2_0, q3_0 = inverse_position_kinematics(x0, y0, z0, q1_guess, q2_guess, q3_guess)
+q1_f, q2_f, q3_f = inverse_position_kinematics(xf, yf, zf, q1_guess, q2_guess, q3_guess)
+
+# Joint velocities and accelerations are zero at start and end
+q1_dot_0 = q2_dot_0 = q3_dot_0 = 0  # Initial velocities
+q1_dot_f = q2_dot_f = q3_dot_f = 0  # Final velocities
+q1_ddot_0 = q2_ddot_0 = q3_ddot_0 = 0  # Initial accelerations
+q1_ddot_f = q2_ddot_f = q3_ddot_f = 0  # Final accelerations
+
+# Solve for polynomial coefficients for each joint (5th degree polynomial)
+def solve_5th_order_polynomial(q0, qf, q_dot_0, q_dot_f, q_ddot_0, q_ddot_f, T):
+    # Fifth-degree polynomial: q(t) = a0 + a1*t + a2*t^2 + a3*t^3 + a4*t^4 + a5*t^5
+    A = np.array([[1, 0, 0, 0, 0, 0],            # q(0) = q0
+                  [0, 1, 0, 0, 0, 0],            # q_dot(0) = q_dot_0
+                  [0, 0, 2, 0, 0, 0],            # q_ddot(0) = q_ddot_0
+                  [1, T, T**2, T**3, T**4, T**5],  # q(T) = qf
+                  [0, 1, 2*T, 3*T**2, 4*T**3, 5*T**4],  # q_dot(T) = q_dot_f
+                  [0, 0, 2, 6*T, 12*T**2, 20*T**3]])  # q_ddot(T) = q_ddot_f
+    b = np.array([q0, q_dot_0, q_ddot_0, qf, q_dot_f, q_ddot_f])
+    coeffs = solve(A, b)  # Solve linear system for coefficients [a0; a1; a2; a3; a4; a5]
+    return coeffs
+
+def evaluate_trajectory_5th_order(coeffs, t):
+    a0, a1, a2, a3, a4, a5 = coeffs
+    q = a0 + a1 * t + a2 * t**2 + a3 * t**3 + a4 * t**4 + a5 * t**5
+    q_dot = a1 + 2 * a2 * t + 3 * a3 * t**2 + 4 * a4 * t**3 + 5 * a5 * t**4
+    q_ddot = 2 * a2 + 6 * a3 * t + 12 * a4 * t**2 + 20 * a5 * t**3
+    return q, q_dot, q_ddot
+
+# Solve for the polynomial coefficients for each joint
+    coeffs_q1 = solve_5th_order_polynomial(q1_0, q1_f, q1_dot_0, q1_dot_f, q1_ddot_0, q1_ddot_f, T)
+    coeffs_q2 = solve_5th_order_polynomial(q2_0, q2_f, q2_dot_0, q2_dot_f, q2_ddot_0, q2_ddot_f, T)
+    coeffs_q3 = solve_5th_order_polynomial(q3_0, q3_f, q3_dot_0, q3_dot_f, q3_ddot_0, q3_ddot_f, T)
+
+# Evaluate joint trajectories over time
+    q1, q1_dot, q1_ddot = evaluate_trajectory_5th_order(coeffs_q1, t)
+    q2, q2_dot, q2_ddot = evaluate_trajectory_5th_order(coeffs_q2, t)
+    q3, q3_dot, q3_ddot = evaluate_trajectory_5th_order(coeffs_q3, t)
+
+# Display joint positions at each time step
+    q_matrix = np.vstack([q1, q2, q3]).T  # Stack joint angles as columns
+    print("Joint positions at each time step:")
+    print(q_matrix)
+
+# Optionally, save the joint positions to a file (e.g., CSV or .txt)
+# np.savetxt("joint_positions.csv", q_matrix, delimiter=",")
+
+
+
+
