@@ -3,7 +3,7 @@
 
 
 % Load Arduino library
-arduinoObj = arduino('COM13', 'Uno', 'Libraries', 'Servo'); % Update COM4 if necessary
+arduinoObj = arduino('COM13', 'Uno', 'Libraries', 'Servo'); % Update COM13 if necessary
 % Check for existing Arduino connection and clear if present
 
 
